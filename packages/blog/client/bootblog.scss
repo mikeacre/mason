@@ -1,0 +1,45 @@
+.boot-blog{
+    display:flex;
+    flex-direction: column;
+
+    .edit-categories{
+        display:flex;
+        .close{
+            order:100;
+        }
+    }
+    #AddRow{
+        
+        order:100;
+    }
+    .blog-row{
+        display: flex;
+        flex-direction:row;
+        align-items: flex-start;
+        button{
+            &:first-of-type{
+                margin-left:auto;
+            }
+            order:100;
+        }
+        border: 1px solid #000;
+    }
+    .boot-blog-col{
+        .delete-col{
+            color: #f00;
+        }
+        color: #000;
+        .options-row {
+            background-color: #666 !important;
+            display: flex;
+            justify-content: center;
+            align-items:flex-start;
+            select{
+                 
+            }
+            i{
+                margin-left:auto;
+            }
+        }
+    }
+}

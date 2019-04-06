@@ -1,0 +1,96 @@
+<template name="ShowSection">
+    <div class="col-sm-12">
+        <div class='container no-padding'>
+            <div class="row">
+                <div class="col-sm-12 mx-auto">
+                    <h1 class="title-box">
+                        <i class="title">{{section.title}}</i>
+                    </h1>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 text-box">
+                    {{{section.content}}}
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template name="Page">
+    <div class="col-sm-12 p-0 m-0 page-image" style="background-image:url({{page.imgUrl}}); background-position: center; background-size:cover; background-repeat: no-repeat; width:100%; height:500px; max-height:60vh;">
+        
+    </div>
+    <div class="col-sm-12">
+        <div class='container no-padding'>
+            <div class="row">
+                <div class="col-sm-12 mx-auto">
+                    <h1 class="title-box">
+                        <i class="title">{{page.title}}</i>
+                    </h1>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 text-box">
+                    {{{page.content}}}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</template>
+
+<template name="newPage">
+    <form id="submitPage">
+        <div class="container blog-new">
+            {{#if working}}
+            {{> Uploading}}
+            {{/if}}
+            <div class="row {{#if working}}d-none{{/if}}" id="loader-row">
+                <div class="col-sm-12">
+                    <input id="title" type="text" class="w-100" placeholder="Title">
+                </div>
+                <div class="col-sm-12">
+                    <input id="slug" type="text" class="w-100" placeholder="Slug">
+                </div>
+                <div class="col-sm-12">
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="img-upload" multiple="multiple" accept="image/jpg, image/jpeg, image/gif, image/png">
+                        <label class="custom-file-label" for="img-upload">Choose file</label>
+                    </div>
+                    {{>displayImages images=images}}
+                </div>
+                <div class="col-sm-12">
+                    <input id="videoID" type="text" class="w-100" placeholder="Video Id">
+                </div>
+                <div class="col-sm-12">
+                    <input id="keywords" type="text" class="w-100" placeholder="Keywords">
+                    <small>Seperate keywords with a comma.</small>
+                </div>
+                <div class="col-sm-12">
+                    <input id="excerpt" type="text" class="w-100" placeholder="Excerpt">
+                </div>
+                
+                <div class="col-sm-12 mt-3" id="bootBlog">
+
+                </div>
+                <div class="col-sm-12">
+                    {{#if isDone}}
+                    <button class="w-100 btn-success" id="savePreview" type="submit">Save & Preview</button>
+                    {{else}}
+                    <button class="w-100 btn-danger">Please Complete All Fields</button>
+                    {{/if}}
+                    {{#if edit}}
+                    <button class="w-100 btn-danger" id="removePost">REMOVE PAGE</button>
+                    {{/if}}
+                </div>
+            </div>
+            
+        </div>
+    </form>
+</template>
+

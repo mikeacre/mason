@@ -1,0 +1,98 @@
+<template name="bootBlog">
+    <div class="container boot-blog" id="POST">
+        
+        <button id="AddRow" class="btn btn-outline-success">Add Row</button>
+    </div>
+</template>
+
+<template name="bootBlogRow">
+    <div class="row">
+        <div class="col-sm-12 row-buttons">
+                <button name="{{id}}" class="btn btn-outline-danger DelRow">Del Row</button>
+                <button name="{{id}}" class="btn btn-warning AddCol">Add Col</button>
+                <button name="{{id}}" class="btn btn-{{#unless isPreview}}outline-{{/unless}}primary previewRow"><i class="fa fa-eye"></i></button>
+        </div>
+    </div>
+    <div class="row blog-row" id="{{id}}">            
+    </div>
+</template>
+
+<template name="bootBlogCol">
+    <div class="boot-blog-col {{#if isPreview}}{{#each css}}{{name}} {{/each}}{{/if}}" id="{{ID}}">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-12 options-row">
+                    <select name="{{ID}}" id="displayType">
+                        {{#with col}}<option value="{{type}}">{{type}}</option>{{/with}}
+                        <option value="text">Text</option>
+                        <option value="image">Image</option>                        
+                    </select>
+                    <select name="{{ID}}" id="displaySize">
+                        {{#with col}}<option value="{{size}}">{{size}}</option>{{/with}}
+                        <option value="1-1">1-1</option>
+                        <option value="1-2">1-2</option>
+                        <option value="1-3">1-3</option>
+                        <option value="2-3">2-3</option>
+                    </select>                    
+                    {{>cssOptions css=css show=show}}
+                    <i class="fa fa-times delete-col" id="{{ID}}"></i>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12 content" id="content">
+                    <textarea id="blogpost" rows="20" name="post" class="ck-box" data-schema-key="post"></textarea>
+                </div>
+            </div>            
+        </div>
+    </div>
+</template>
+
+<template name="cssOptions">
+        {{#if show}}
+        <div class="edit-categories pop">
+                       <button class="btn btn-outline-primary" type="button" id="close"><i class="fa fa-times"></i></button>
+            {{#if $eq show true}}
+            <form id="addCategory">
+                    <div class="input-group">
+                      <input type="text" class="form-control email" id="categoryName">
+                      <div class="input-group-append">
+                        <button class="btn btn-warning" type="submit" form="addCategory"><i class="fa fa-plus"></i></button>
+                      </div>
+                    </div>
+                  </form>
+            {{else}}
+            <form id="editCategory">
+                    <div class="input-group">
+                      <input type="text" class="form-control email" id="name" name="{{show}}" value="{{show}}">
+                      <div class="input-group-append">
+                        <button class="btn btn-warning" type="submit" form="editCategory"><i class="fa fa-pencil"></i></button>
+                        <button class="btn btn-danger" type="button" id="delCategory" name="{{show}}"><i class="fa fa-trash"></i></button>
+                      </div>
+                    </div>
+                  </form>
+            {{/if}}
+        </div>
+        {{else}}
+        <ul>
+                {{#each css}}
+                <li class="btn btn-outline-info category" id="{{name}}">{{name}}</li>
+                {{/each}}
+          
+                <li id="add" class="btn btn-outline-success"><i class="fa fa-plus"></i></li>
+              </ul>
+        {{/if}}
+      </template>
+
+<template name="bootBlogImageNode">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12">
+                    <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="{{id}}" multiple="multiple" accept="image/jpg, image/jpeg, image/gif, image/png">
+                            <label class="custom-file-label" for="img-upload">Choose file</label>
+                          </div>
+                          {{>displayImages images=images}}
+            </div>
+        </div>
+    </div>
+</template>

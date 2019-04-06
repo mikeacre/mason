@@ -1,0 +1,587 @@
+<template name="Blogs">
+    <!--Show list of blogs here-->
+    <div class="container blogs-list mt-5">
+      <div class="row">
+        <div class="col-sm-12 filter-row">Categories:
+          <select name="category" id="category">
+            {{#each ListCategories}}
+            <option value="{{name}}">{{name}}</option>
+            {{/each}}
+          </select>
+        </div>
+        {{#each blog}}
+        <div class="col-sm-4 preview-col mt-3 h-100">
+          {{> blogPreview}}
+        </div>
+        {{/each}}
+      </div>
+    </div>
+    {{#if IsAdmin}}<center><a href="/newblog/" class="badge badge-pill badge-primary text-uppercase">Add New</a></center>{{/if}}
+  </template>
+  
+  <template name="blogPreview">
+    <!--Internal of blog Preview Container-->
+    <article class="blog-preview" onClick="FlowRouter.go('/blog/{{_id}}')">
+      <div class="card bg-dark">
+        <div class="image card-img-top">
+          <a href="/blog/{{_id}}"><img src="{{imgUrl}}" class="w-100 img-responsive rounded-top"></a>
+  
+        </div>
+        <div class="card-body bg-light text-dark">
+          <p>{{excerpt}}</p>
+        </div>
+        <div class="card-footer">
+          <span class="createdBy">{{GetUsername createdBy}}</span><br>
+          <span class="createdAt">{{ReadableDate createdAt}}</span>
+        </div>
+      </div>
+    </article>
+  </template>
+  
+  <template name="Blog">
+    <!--Show one blog article-->
+    <div class="container-fluid blog-article">
+      <div class="row">
+        <div class="col p-0">
+          {{#with bloginfo}}
+          <article class="blog">
+            <div class="image">
+              {{#if videoID}}
+              <div class=" w-100 embed-responsive embed-responsive-16by9">
+                <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/{{videoID}}" allowfullscreen></iframe>
+              </div>
+              {{else}}
+              {{>ImageSlider images=images}}
+              {{/if}}
+            </div>
+            <div class=" container text p-2">
+              <h1 class="title-box">
+                <center clas="title">{{title}}</center>
+              </h1>
+              <div class="container-fluid">
+                {{#each body}}
+                  <div class="row">
+                    {{#each this}}
+                      {{#if $eq type 'text'}}
+                        <div class="{{bootSize size}} {{#each css}}{{name}} {{/each}}">
+                            {{{data.html}}}
+                        </div>
+                        
+                      {{else}}
+                      <div class="{{bootSize size}}">
+                          {{>ImageSlider images = data.images id=id}}
+                      </div>  
+                      {{/if}}
+                    {{/each}}
+                  </div>
+                {{/each}}
+              </div>
+              <hr>
+              <span class="createdBy"><b>Posted By: </b>{{GetUsername createdBy}}</span><br>
+              <span class="createdAt"><b>Posted On: </b>{{ReadableDate createdAt}}</span><br>
+            </div>
+          </article>
+          {{/with}}
+          {{#if IsAdmin}}<center><button class="btn btn-outline-primary"><a href="/newBlog/{{bloginfo._id}}">edit post</a></button>{{#if bloginfo.isDraft}} <button id="publish" class="btn btn-outline-warning">Publish</button>{{/if}}</center>{{/if}}
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <center>
+            <div class="fb-like" data-layout="button_count" data-action="like" data-share="true" data-show-faces="true"
+              data-size="large" width="200px">
+            </div>
+          </center>
+        </div>
+      </div>
+      <div row="comments-row">
+        <div class="col-sm-12">
+          {{> Comments}}
+        </div>
+      </div>
+    </div>
+  </template>
+
+
+
+  <template name="ImageSlider">
+      <div id="carouselExampleIndicators-{{id}}" class="carousel slide" data-ride="carousel">
+          <div class="carousel-inner" role="listbox">
+              {{#each images}}
+              <div class="carousel-item {{#if $eq @index 0}}active{{/if}}">
+                <img class="d-block w-100 sliderimg" src="{{smallUrl}}">
+                <div class="carousel-caption d-sm-block d-md-block">
+                  <h5 class="slidertext"></h5>
+                </div>
+              </div>
+            {{/each}}
+          </div>
+          <a class="carousel-control-prev" href="#carouselExampleIndicators-{{id}}" role="button" data-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="sr-only">Previous</span>
+          </a>
+          <a class="carousel-control-next" href="#carouselExampleIndicators-{{id}}" role="button" data-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="sr-only">Next</span>
+          </a>
+        </div>       
+    </template>
+    
+  
+  <template name="Uploading">
+    <div class="row">
+      <div class="col-sm-12 text-center m-3">
+        <h1>UPLOADING...</h1>
+        <div class="lds-ring">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <template name="displayImages">
+      <div class="display-images row">
+              {{#each images}}
+              <div class="col-sm-4 {{#if info}}img-info-upload{{else}}img-upload{{/if}}" id="{{name}}">
+                  <img src="{{#if img}}{{img}}{{else if url}}{{url}}{{else}}{{imgUrl}}{{/if}}" class="w-100 img-fluid float-left" id="{{name}}">
+              </div>
+              {{/each}} 
+              <div class="col-sm-12">
+                  {{#if images}}
+                  <small>click to remove</small>
+                  {{/if}}
+              </div>       
+          </div>
+</template>
+  
+  <template name="newBlog">
+    <!--Show one blog article-->
+    <form id="submitBlog">
+      <div class="container blog-new">
+          {{#if working}}
+          {{> Uploading}}
+          {{/if}}
+        <div class="row {{#if working}}d-none{{/if}}">
+          <div class="col-sm-12">
+            <input id="title" type="text" class="w-100" placeholder="Title">
+          </div>
+          <div class="col-sm-12">
+            <div class="custom-file">
+              <input type="file" class="custom-file-input" id="img-upload" multiple="multiple" accept="image/jpg, image/jpeg, image/gif, image/png">
+              <label class="custom-file-label" for="img-upload">Choose file</label>
+            </div>
+            {{>displayImages images=images}}
+          </div>
+          <div class="col-sm-12">
+            <input id="videoID" type="text" class="w-100" placeholder="Video Id">
+          </div>
+          <div class="col-sm-12">
+            <input id="keywords" type="text" class="w-100" placeholder="Keywords">
+            <small> keywords with a comma.</small>
+          </div>
+          <div class="col-sm-12">
+            <input id="excerpt" type="text" class="w-100" placeholder="Excerpt">
+          </div>
+          <div class="col-sm-12">
+            <select id="category" class="w-100">
+              {{#each ListCategories}}
+              <option>{{name}}</option>
+              {{/each}}
+            </select>
+          </div>
+          <div class="col-sm-12 mt-3" id="bootBlog">
+
+          </div>
+          <div class="col-sm-12">
+            {{#if isDone}}
+            <button class="w-100 btn-success" id="savePreview" type="submit">Save & Preview</button>
+            {{else}}
+            <button class="w-100 btn-danger">Please Complete All Fields</button>
+            {{/if}}
+            {{#if edit}}
+              <button class="w-100 btn-danger mt-3" id="removePost">DELETE POST</button>
+            {{/if}}
+          </div>
+        </div>
+      </div>
+    </form>
+  </template>
+  
+  <template name="blogConsole">
+
+    <div class="container blog-console mt-3">
+      {{#if messages}}
+      <div class="alert alert-success mt-5" role="alert" onClick="Session.set('message', false)">
+        {{{messages}}}
+      </div>
+      {{/if}}
+      {{#if errors}}
+      <div class="alert alert-danger mt-5" role="alert" onClick="Session.set('errors', false)">
+        {{{errors}}}
+      </div>
+      {{/if}}
+      {{#if showOptions 'choosePost'}}
+      <div class="row console-mask">
+        <div class="col-sm-12 p-3">
+          <div class="card h-100">
+            <div class="card-body email-list">
+              <button type="button" class="close" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              <table class="table table-hover table-responsive-sm">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Date</th>
+                    <th>Data</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{#each post}}
+                  <tr class="{{#if wasSent}}table-success{{/if}} view-post" id="{{_id}}">
+                    <th scope="row">{{title}}</th>
+                    <td>{{ReadableDate createdAt}}</td>
+                    <td>{{GetUsername createdBy}}</td>
+                  </tr>
+                  {{/each}}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row console-info d-none">
+        <div class="col-sm-12 p-3">
+          <div class="card h-100">
+            <div class="card-body email-info">
+              <button type="button" class="close float-right" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              <div class="row">
+                {{>EmailInfo emailData=emailData}}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {{else}}
+      <div class="row console-home">
+        <div class="col-sm-6 p-3">
+          <div class="card h-100" onclick="FlowRouter.go('/newblog/')">
+            <div class="card-body create-post">
+              <div>
+                <h4 class="card-title">Create Post</h4>
+                <i class="fa fa-plus"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 p-3">
+          <div class="card">
+            <div class="card-body send-email">
+              <div>
+                <h4 class="card-title">Send E-mail</h4>
+                <i class="fa fa-envelope"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <div class="col-sm-6 p-3">
+          <div class="card h-100" onclick="FlowRouter.go('/newPage/')">
+            <div class="card-body create-page">
+              <div>
+                <h4 class="card-title">Create Page</h4>
+                <i class="fa fa-plus"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 p-3">
+          <div class="card h-100">
+            <div class="card-body edit-page">
+              <div>
+                <h4 class="card-title">Edit Page</h4>
+                <select id="selectPage">
+                  {{#each pageOption}}
+                  <option value="{{_id}}">{{title}}</option>
+                  {{/each}}
+                </select>
+                <button id="editPage" class="btn btn-outline-primary"><i class="fa fa-pencil"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+      </div>
+      <div class="row console-home">
+        <div class="col-sm-12 p-3">
+          <div class="card">
+            <div class="card-body view-drafts">
+              <h4 class="card-title">
+                <div class="float-left">
+                  <div class="switch">
+                    <div class="switch switch-blue">
+                      <input type="radio" class="switch-input" name="drafts" value="drafts" id="drafts" checked>
+                      <label for="drafts" class="switch-label switch-label-off">Drafts</label>
+                      <input type="radio" class="switch-input" name="drafts" value="published" id="published">
+                      <label for="published" class="switch-label switch-label-on">Published</label>
+                      <span class="switch-selection"></span>
+                    </div>
+                  </div>
+                </div>
+                <span class="badge badge-pill badge-primary float-right">{{draftsCount}}</span>
+              </h4>
+              {{> viewDrafts draft=drafts}}
+              {{#if $gt draftsCount 5}}<button class="showAllDrafts btn btn-outine-primary">Show All</button>{{/if}}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row console-home">
+        <div class="col-sm-6 p-3">
+          <div class="card h-100">
+            <div class="card-body">
+              {{>editCategories category=categories}}
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 p-3">
+          <div class="card">
+            <div class="card-body mailing-list">
+              <h1>
+                <center>Mailing List</center>
+              </h1>
+              <form id="addMailingList">
+                <div class="input-group">
+                  <input type="text" class="form-control email" id="newEmail">
+                  <div class="input-group-append">
+                    <button class="btn btn-warning" type="submit"><i class="fa fa-plus"></i></button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      {{/if}}
+    </div>
+
+  </template>
+  
+  <template name="EmailInfo">
+    {{#with emailData}}
+    {{#if wasSent}}
+    <div class="col-sm-6 mx-auto">
+      <div class="card border-0">
+        <div class="card-body">
+          <h4 class="card-title">{{title}}</h4>
+          <h6 class="card-subtitle mb-2 text-muted"><span class="badge badge-success">SENT</span>{{ReadableDate
+            createdAt}}</h6>
+          <h6 class="card-subtitle">Opened: {{opened}}/{{totalSent}}</h6>
+          </div>
+      </div>
+    </div>
+          <div class="col-sm-12 mx-auto mt-3">
+              <div class="card border-0">
+                <div class="card-body" id="SampleEmail">
+                  
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 mx-auto">
+                <div class="card border-0">
+                  <div class="card-body">
+
+          <table class="table table-hover table-sm-responsive">
+            <thead>
+              <tr>
+                <th>E-Mail</th>
+                <th>Opened</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each email}}
+              <tr>
+                <th scope="row">{{getEmail emailID}}</th>
+                <td>{{#if getOpened trackerID}}YES{{else}}NO{{/if}}</td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+  
+        </div>
+      </div>
+    </div>
+    {{else}}
+    <div class="col-sm-6 mx-auto">
+      <form id="sendEmail">
+        <input type="hidden" id="contentID" value="{{_id}}">
+        <b>When to send:</b><br>
+        <select id="send" class="w-100 mb-3">
+          <option>Now</option>
+          <option value="later">Later</option>
+          <option value="test">Test</option>
+        </select>
+        {{#if sendTest}}
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <button class="btn btn-success" type="button"><i class="fa fa-envelope"></i></button>
+          </div>
+          <input type="text" class="form-control email" id="testEmail">
+        </div>
+        {{/if}}
+        {{#if sendLater}}
+        {{> datePicker}}
+        <div class="input-group">
+          <select class="form-control" id="sendHour">
+            {{#each time.hours}}
+            <option>{{this}}</option>
+            {{/each}}
+          </select>
+          <select class="form-control" id="sendMin">
+            {{#each time.mins}}
+            <option>{{this}}</option>
+            {{/each}}
+          </select>
+          <select class="form-control" id="sendAmPm">
+            {{#each time.ampm}}
+            <option>{{this}}</option>
+            {{/each}}
+          </select>
+          <div class="input-group-append">
+            <button class="btn btn-success" type="button"><i class="fa fa-clock-o"></i></button>
+          </div>
+
+        </div>
+  
+        {{/if}}
+        <b>Title:</b><br>
+        <input type="text" id="title" value="{{title}}" class="form-control">
+        <button class="btn btn-outline-primary w-100 mt-3">Send!</button>
+      </form>
+
+    </div>
+    <div class="col-sm-12 mx-auto mt-3">
+        <div class="card border-0">
+          <div class="card-body" id="SampleEmail">
+            
+          </div>
+        </div>
+      </div>
+    {{/if}}
+
+    {{/with}}
+  </template>
+  
+  <template name="datePicker">
+    <div class="input-group">
+      <input type="text" class="form-control" id="sendDate">
+      <div class="input-group-append">
+        <button class="btn btn-success" type="button"><i class="fa fa-calendar"></i></button>
+      </div>
+    </div>
+  </template>
+  
+  <template name="viewDrafts">
+    <div class="view-drafts">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Poster</th>
+            <th class="d-none d-sm-block">Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each draft}}
+          <tr>
+            <th scope="row"><a href="/blog/{{_id}}">{{title}}</a></th>
+            <td>{{GetUsername createdBy}}</td>
+            <td class="d-none d-sm-block">{{ReadableDate createdAt}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </template>
+  
+  <template name="editCategories">
+    <div class="edit-categories main">
+      <h1>Categories</h1>
+      <ul>
+        {{#each category}}
+        <li id="{{@index}}" class="btn btn-outline-info category"><span id="name">{{name}}</span></li>
+        {{/each}}
+  
+        <li id="add" class="btn btn-outline-success"><i class="fa fa-plus"></i></li>
+      </ul>
+      <small>Click Category to edit/remove</small>
+    </div>
+    <div class="edit-categories pop d-none">
+      <button type="button" class="close" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      {{#if showAdd}}
+      <h1>
+        <center>Add Category</center>
+      </h1>
+      <form id="addCategory">
+        <div class="input-group">
+          <input type="text" class="form-control email" id="categoryName">
+          <div class="input-group-append">
+            <button class="btn btn-warning" type="submit" form="addCategory"><i class="fa fa-plus"></i></button>
+          </div>
+        </div>
+      </form>
+      {{/if}}
+      {{#if showEdit}}
+      <h1>
+        <center>Edit Category</center>
+      </h1>
+      <form id="editCategory">
+        {{#with showCategory}}
+        <div class="input-group">
+          <input type="text" class="form-control email" id="categoryName" value="{{name}}">
+          <div class="input-group-append">
+            <button class="btn btn-warning" type="submit" form="editCategory"><i class="fa fa-pencil"></i></button>
+            <button class="btn btn-danger" type="button" id="delCategory"><i class="fa fa-close"></i></button>
+          </div>
+        </div>
+        {{/with}}
+      </form>
+      {{/if}}
+    </div>
+  </template>
+  
+  <template name="Comments">
+    {{> showComments}}
+  </template>
+  
+  <template name="showComments">
+    {{#if $.Meteor.userId}}
+    <div class="comment-field">
+      <h1>Leave A Comment</h1>
+      <form id="doAddComment">
+        <textarea id="comment" cols="10" rows="4" class="w-100"></textarea>
+        <button class="btn btn-primary" type="submit" form="doAddComment">Comment!</button>
+      </form>
+    </div>
+    {{else}}
+    {{>Login}}
+    {{/if}}
+    <div class="col-sm-12 comments">
+      <ul class="pt-5">
+        {{#each comments}}
+        <li>
+          <p>{{comment}}</p>
+          <b>By:</b> {{GetUsername createdBy}} @ {{ReadableDate createdAt}}
+          {{#if IsAdmin}}<i class="fa fa-remove delete-comment" id="{{_id}}"></i>{{/if}}
+        </li>
+        {{/each}}
+      </ul>
+    </div>
+  </template>
